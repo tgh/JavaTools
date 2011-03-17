@@ -539,7 +539,7 @@ public class Log {
    * the message, and <tt>false</tt> will not.
    */
   public void logGeneralMessage(String message, int tabs, boolean usingTime) {
-    printMessage(generalIndicator + " ", message, tabs, usingTime);
+    printMessage(generalIndicator, message, tabs, usingTime);
   }
   
   
@@ -593,7 +593,7 @@ public class Log {
    * the message, and <tt>false</tt> will not.
    */
   public void logData(String message, int tabs, boolean usingTime) {
-    printMessage(dataIndicator + " ", message, tabs, usingTime);
+    printMessage(dataIndicator, message, tabs, usingTime);
   }
   
   
