@@ -1,3 +1,3 @@
 #!/bin/bash
 
-jar cvf tylerhayes.tools.jar ./src/tylerhayes/tools/*.java
+jar cvf tylerhayes.tools.jar -C ./src/ ./tylerhayes/
