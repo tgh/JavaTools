@@ -2,12 +2,12 @@ package tylerhayes.tools;
 
 import java.sql.*;
 
-public class PostgresSQLConsole {
+public class PostgreSQLConsole {
 
   private Connection dbConn;
   
 	
-  public PostgresSQLConsole(Connection dbConn) {
+  public PostgreSQLConsole(Connection dbConn) {
 		this.dbConn = dbConn;
 	}
   
