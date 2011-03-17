@@ -4,24 +4,31 @@ import java.io.*;
 import java.util.*;
 
 /**
- * The <b>Log</b> Class defines an object that logs messages to a log file.  The
- * user of the Log object can either specify their own file name and path, or
- * use the default file name given by the default Constructor
+ * The <b>Log</b> Class defines an object that logs messages to a log file.
+ * The user of the Log object can either specify their own file name and path,
+ * or use the default file name given by the default Constructor
  * {@link #Log() Log()}.
  * <p>
- * In addition, the user can switch over to a new file during the use of the Log
- * object, if, for example, the file is growing too large by using the {@link
- * #setFile(String) setFile(String)} method, or the {@link #setFileDefault()
- * setFileDefault()} method.  The latter is if you want the Log object to create
- * the default file name for you (using the current directory and current time).
+ * In addition, the user can switch over to a new file during the use of the
+ * Log object, if, for example, the file is growing too large by using the
+ * {@link #setFile(String) setFile(String)} method, or the {@link
+ * #setFileDefault() setFileDefault()} method.  The latter is if you want the
+ * Log object to create the default file name for you (using the current
+ * directory and current time).
  * </p>
+ * By default, <b>Log</b> only outputs to the log file, but the user can have
+ * it also output to <tt>stdout</tt>--either all messages (excluding the header
+ * and footer) or only error messages.  This can be done using the
+ * {@link #enableStdoutForAll() enableStdoutForAll()} and
+ * {@link #enableStdoutForErrorsOnly() enableStdoutForErrorsOnly()} methods.
+ * 
  * <p>
  * <b>INDICATORS</b>
  * </p>
  * <p>
- * The Log object writes its messages with <i>indicators</i>.  These indicators are
- * two-character strings that prepend the logged messages to make it easier to
- * locate certain kinds of messages when reading the log file.<br>
+ * The Log object writes its messages with <i>indicators</i>.  These indicators
+ * are two-character strings that prepend the logged messages to make it easier
+ * to locate certain kinds of messages when reading the log file.<br>
  * Here is an example of a log file with the message indicators:
  * </p>
  * <p>
@@ -53,8 +60,8 @@ import java.util.*;
  * one would call {@link #disableIndicators()}.  If the user wanted to turn the
  * use of indicators back on, a call to {@link #enableIndicators()
  * enableIndicators()} would set the indicators back to whatever they were
- * before the call to <tt>disableIndicators()</tt>.  There is also the option of
- * resetting the indicators to their default values with a call to {@link
+ * before the call to <tt>disableIndicators()</tt>.  There is also the option
+ * of resetting the indicators to their default values with a call to {@link
  * #resetIndicators() resetIndicators()}.
  * </p>
  * <p>
@@ -65,8 +72,8 @@ import java.util.*;
  * logging every link extracted from each web page, the above method could be
  * called like so: <code>logObj.logGeneralMessageWithoutIndicator("-> Link
  * extracted: " + link, 2, true);</code>, where "<tt>-> </tt>" is the indicator.
- * Unfortunately, you will have to include that indicator every time you want to
- * use it.
+ * Unfortunately, you will have to include that indicator every time you want
+ * to use it.
  * </p>
  * 
  * @author Tyler Hayes - Portland State University &copy; 2010.
@@ -88,6 +95,8 @@ public class Log {
   private String killIndicator;
   private String killIndicatorReserve;
   private int tabSize;
+  private boolean stdoutAll;
+  private boolean stdoutErrors;
   
   
   /**
@@ -98,6 +107,13 @@ public class Log {
    * <p>
    * Example: <tt>8-20-2010_1282332840418.log</tt> for a log file created on
    * August 20th, 2010, at around 12:34 pm.
+   * </p>
+   * <p>
+   * By default, output will only be directed to the log file.  If you would
+   * like to also output the log messages to stdout (either all messages, or
+   * only error messages), use the {@link #enableStdoutForAll()
+   * enableStdoutForAll()} or {@link #enableStdoutForErrorsOnly()
+   * enableStdoutForErrorsOnly()} methods.
    * </p>
    */
   public Log() {
@@ -119,6 +135,13 @@ public class Log {
    * <p>
    * If you wish to append to the given file, use the following Constructor,
    * {@link #Log(String, boolean) Log(String, boolean)}.
+   * </p>
+   * <p>
+   * By default, output will only be directed to the log file.  If you would
+   * like to also output the log messages to stdout (either all messages, or
+   * only error messages), use the {@link #enableStdoutForAll()
+   * enableStdoutForAll()} or {@link #enableStdoutForErrorsOnly()
+   * enableStdoutForErrorsOnly()} methods.
    * </p>
    * 
    * @param fileName A <tt>String</tt> for the path and filename of the log
@@ -154,10 +177,17 @@ public class Log {
   /**
    * Creates a Log object that appends to the file given as the parameter,
    * <tt>fileName</tt>.
+   * <p>
+   * By default, output will only be directed to the log file.  If you would
+   * like to also output the log messages to stdout (either all messages, or
+   * only error messages), use the {@link #enableStdoutForAll()
+   * enableStdoutForAll()} or {@link #enableStdoutForErrorsOnly()
+   * enableStdoutForErrorsOnly()} methods.
+   * </p>
    * @param fileName A <tt>String</tt> for the path and filename of the log
    * file.
-   * @param append A <tt>boolean</tt> specifying whether or not to append to the
-   * file given as <tt>fileName</tt>.  This should always be <tt>true</tt>,
+   * @param append A <tt>boolean</tt> specifying whether or not to append to
+   * the file given as <tt>fileName</tt>.  This should always be <tt>true</tt>,
    * because if you do not want to append, then just use the previous
    * Constructor, {@link #Log(String) Log(String)}.
    */
@@ -179,8 +209,9 @@ public class Log {
   
   
   /**
-   * Properly closes the resources used with the Log object--in this case just a
-   * private <tt>BufferedWriter</tt> object used to write to the specified file.
+   * Properly closes the resources used with the Log object--in this case just
+   * a private <tt>BufferedWriter</tt> object used to write to the specified
+   * file.
    */
   public void close() {
     try { bw.close(); }
@@ -623,7 +654,7 @@ public class Log {
    * the message, and <tt>false</tt> will not.
    */
   public void logError(String message, int tabs, boolean usingTime) {
-    printMessage(errorIndicator + " ERROR: ", message, tabs, usingTime);
+    printErrorMessage(errorIndicator + " ERROR: ", message, tabs, usingTime);
   }
   
   
@@ -657,7 +688,7 @@ public class Log {
    * the message, and <tt>false</tt> will not.
    */
   public void logFatalError(String message, int tabs, boolean usingTime) {
-    printMessage(fatalErrorIndicator + " FATAL ERROR: ", message, tabs,
+    printErrorMessage(fatalErrorIndicator + " FATAL ERROR: ", message, tabs,
                                                                      usingTime);
   }
   
@@ -761,6 +792,51 @@ public class Log {
   }
   
   
+  /**
+   * Enables the output of all logged messages (excluding header and footer)
+   * to be directed to stdout as well as the log file.
+   * <p>
+   * <b>NOTE:</b> a client may accidentally enable stdout for both all messages
+   * <i>and</i> error messages by calling both this method and {@link
+   * #enableStdoutForErrorsOnly() enableStdoutForErrorsOnly()}.  <b>Log</b>
+   * does not prevent this from happening.  However, doing so does not output
+   * error messages twice--it only has the same effect of this method.
+   */
+  public void enableStdoutForAll() {
+	  stdoutAll = true;
+  }
+  
+  
+  /**
+   * Enables the output of error messages to be directed to stdout as well as
+   * the log file.
+   * <p>
+   * <b>NOTE:</b> a client may accidentally enable stdout for both all messages
+   * <i>and</i> error messages by calling both this method and {@link
+   * #enableStdoutForAll() enableStdoutForAll()}.  <b>Log</b> does not prevent
+   * this from happening.  However, doing so does not output error messages
+   * twice--it only has the same effect of {@link #enableStdoutForAll()
+   * enableStdoutForAll()}.
+   */
+  public void enableStdoutForErrorsOnly() {
+	  stdoutErrors = true;
+  }
+  
+  
+  /**
+   * Disables the directing of messages to stdout.  If output to stdout was
+   * never enabled, then this call has no effect.  If all messages were
+   * enabled to be output to stdout, but it is now desired to only direct
+   * errors to stdout, then a call to this method followed by a call to
+   * {@link #enableStdoutForErrorsOnly() enableStdoutForErrorsOnly()} will do
+   * the job.
+   */
+  public void disableStdoutForAll() {
+	  stdoutAll = false;
+	  stdoutErrors = false;
+  }
+  
+  
   /*
    * Instantiates the BufferedWriter object to a default file in the current
    * directory with the current date and current time in milliseconds as the
@@ -826,9 +902,11 @@ public class Log {
   
   
   /*
-   * This is the method that does the actual output to the file for writing
-   * messages.  It outputs a timestamp if it's desired, any indentation, the
-   * appropriate indicator and space, followed by the message.
+   * This is the method that does the actual output to the file (and maybe
+   * stdout if it's enabled) for writing non-error messages (error messages
+   * are passed to printErrorMessage()).  It outputs a timestamp if it's
+   * desired, any indentation, the appropriate indicator and space,
+   * followed by the message.
    */
   private void printMessage(String indicator, String message, int tabs,
                                                             boolean usingTime) {
@@ -839,7 +917,8 @@ public class Log {
         time.setTime(new Date());
         //output the timestamp
         bw.write(time.getTime().toString() + "> ");
-        System.out.print(time.getTime().toString() + "> ");
+        if (stdoutAll)
+        	System.out.print(time.getTime().toString() + "> ");
       }
       
       //indent the message
@@ -848,12 +927,54 @@ public class Log {
         sb.append(" ");
       }
       bw.write(sb.toString());
-      System.out.print(sb.toString());
+      if (stdoutAll)
+    	  System.out.print(sb.toString());
       
       //output the indicator followed by the message
       bw.write(indicator + " " + message);
       bw.newLine();
-      System.out.println(indicator + " " + message);
+      if (stdoutAll)
+    	  System.out.println(indicator + " " + message);
+    }
+    catch (IOException ioe) {
+      exitFromIoError("while writing message to log file.", ioe);
+    }
+  }
+  
+  /*
+   * This is the method that does the actual output to the file (and maybe
+   * stdout if it's enabled) for writing error messages (regular messages
+   * are passed to printMessage()).  It outputs a timestamp if it's
+   * desired, any indentation, the appropriate indicator and space,
+   * followed by the message.
+   */
+  private void printErrorMessage(String indicator, String message, int tabs,
+                                                            boolean usingTime) {
+    try {
+      //output timestamp if caller desired it
+      if (usingTime) {
+        //reset the calendar to the current time
+        time.setTime(new Date());
+        //output the timestamp
+        bw.write(time.getTime().toString() + "> ");
+        if (stdoutAll || stdoutErrors)
+        	System.out.print(time.getTime().toString() + "> ");
+      }
+      
+      //indent the message
+      StringBuilder sb = new StringBuilder("");
+      for (int i=0; i < tabSize*tabs; ++i) {
+        sb.append(" ");
+      }
+      bw.write(sb.toString());
+      if (stdoutAll || stdoutErrors)
+    	  System.out.print(sb.toString());
+      
+      //output the indicator followed by the message
+      bw.write(indicator + " " + message);
+      bw.newLine();
+      if (stdoutAll || stdoutErrors)
+    	  System.out.println(indicator + " " + message);
     }
     catch (IOException ioe) {
       exitFromIoError("while writing message to log file.", ioe);
