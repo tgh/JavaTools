@@ -16,8 +16,7 @@ public class TestDriver {
 		log.enableStdoutForErrorsOnly();
 		log.logWarning("Warning. Iceberg ahead.", 0, false);
 		log.logFatalError("We're dead.", 0, false);
-		log.logFooter("END");
-		log.close();
+		log.close("END");
 	}
 
 }

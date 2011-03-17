@@ -216,8 +216,25 @@ public class Log {
   public void close() {
     try { bw.close(); }
     catch (IOException ioe) {
-      exitFromIoError("while initializing new log file.", ioe);
+      exitFromIoError("while closing log file.", ioe);
     }
+  }
+  
+  
+  /**
+   * This version of <tt>close()</tt> takes a String parameter that is passed
+   * to {@link #logFooter(String) logFooter(String)} so that a footer is
+   * output to the file before closing.  This is just a shortcut for having to
+   * call <tt>logFooter(String)</tt>, followed by <tt>close()</tt>
+   * 
+   * @param footerText Text to be placed inside the footer block.
+   */
+  public void close(String footerText) {
+	  logFooter(footerText);
+	  try { bw.close(); }
+	  catch (IOException ioe) {
+		  exitFromIoError("while closing log file.", ioe);
+	  }
   }
   
   
@@ -498,7 +515,7 @@ public class Log {
    * </tt></p>
    * It follows an empty line, and is 80 characters wide, and 3 lines long.
    * </p>
-   * @param footerText Text to be placed inside the header block.
+   * @param footerText Text to be placed inside the footer block.
    * @see #logHeader(String) logHeader
    */
   public void logFooter(String footerText) {
