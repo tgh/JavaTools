@@ -577,7 +577,35 @@ public class Log {
    */
   public void logGeneralMessageWithoutIndicator(String message, int tabs,
                                                             boolean usingTime) {
-    printMessage("", message, tabs, usingTime);
+    try {
+      //output timestamp if caller desired it
+      if (usingTime) {
+        //reset the calendar to the current time
+        time.setTime(new Date());
+        //output the timestamp
+        bw.write(time.getTime().toString() + "> ");
+        if (stdoutAll)
+        	System.out.print(time.getTime().toString() + "> ");
+      }
+      
+      //indent the message
+      StringBuilder sb = new StringBuilder("");
+      for (int i=0; i < tabSize*tabs; ++i) {
+        sb.append(" ");
+      }
+      bw.write(sb.toString());
+      if (stdoutAll)
+    	  System.out.print(sb.toString());
+      
+      //output the message
+      bw.write(message);
+      bw.newLine();
+      if (stdoutAll)
+    	  System.out.println(message);
+	  }
+	  catch (IOException ioe) {
+	    exitFromIoError("while writing message to log file.", ioe);
+	  }
   }
   
   
